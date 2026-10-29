@@ -321,8 +321,131 @@ else:
         mime="text/csv",
     )
 
+
 st.divider()
-st.header("3. Interpretation and limitations")
+
+# Dedicated top-rule comparison
+st.header("3. Top rules by scenario")
+st.caption(
+    "Explore the saved top-rule sample for one threshold scenario and "
+    "expression group. These are not all rules from the original dataset."
+)
+
+available_top_scenarios = [
+    scenario
+    for scenario in SCENARIO_LABELS
+    if scenario in rules["scenario"].dropna().unique()
+]
+
+if available_top_scenarios:
+    top_col1, top_col2 = st.columns(2)
+
+    with top_col1:
+        top_scenario = st.selectbox(
+            "Choose threshold scenario",
+            options=available_top_scenarios,
+            format_func=lambda value: SCENARIO_LABELS.get(value, value),
+            key="top_rule_scenario",
+        )
+
+    scenario_rules = rules[rules["scenario"] == top_scenario].copy()
+    scenario_groups = sorted(
+        scenario_rules["group"].dropna().unique().tolist()
+    )
+
+    with top_col2:
+        top_group = st.selectbox(
+            "Choose expression group",
+            options=scenario_groups,
+            key="top_rule_group",
+        )
+
+    selected_top_rules = scenario_rules[
+        scenario_rules["group"] == top_group
+    ].copy()
+
+    metric_labels = {
+        "lift": "Lift",
+        "confidence": "Confidence",
+        "support": "Support",
+    }
+
+    metric_to_rank = st.selectbox(
+        "Rank rules by",
+        options=list(metric_labels),
+        format_func=lambda value: metric_labels[value],
+        index=0,
+        key="top_rule_rank_metric",
+    )
+
+    selected_top_rules = selected_top_rules.dropna(
+        subset=[metric_to_rank]
+    ).sort_values(metric_to_rank, ascending=False).head(20)
+
+    if selected_top_rules.empty:
+        st.warning("No saved top rules are available for this selection.")
+    else:
+        selected_top_rules["rule"] = (
+            selected_top_rules["antecedents"].fillna("")
+            + " → "
+            + selected_top_rules["consequents"].fillna("")
+        )
+
+        chart_rules = selected_top_rules.sort_values(
+            metric_to_rank, ascending=True
+        )
+
+        fig_top_rules = px.bar(
+            chart_rules,
+            x=metric_to_rank,
+            y="rule",
+            orientation="h",
+            title=(
+                f"Top saved {top_group} rules — "
+                f"{metric_labels[metric_to_rank]}"
+            ),
+            labels={
+                metric_to_rank: metric_labels[metric_to_rank],
+                "rule": "Association rule",
+            },
+            hover_data=["support", "confidence", "lift"],
+        )
+        fig_top_rules.update_layout(
+            yaxis_title="Antecedents → consequent",
+            yaxis={"categoryorder": "total ascending"},
+        )
+        st.plotly_chart(fig_top_rules, width="stretch")
+
+        st.dataframe(
+            selected_top_rules[
+                [
+                    "scenario",
+                    "group",
+                    "antecedents",
+                    "consequents",
+                    "support",
+                    "confidence",
+                    "lift",
+                ]
+            ],
+            width="stretch",
+            hide_index=True,
+        )
+
+        st.download_button(
+            "Download these top rules as CSV",
+            data=selected_top_rules.drop(columns=["rule"]).to_csv(
+                index=False
+            ).encode("utf-8"),
+            file_name=f"top_rules_{top_scenario}_{top_group.lower()}.csv",
+            mime="text/csv",
+            key="download_top_scenario_rules",
+        )
+else:
+    st.warning("No recognized threshold scenarios were found in the rules file.")
+
+st.divider()
+st.header("4. Interpretation and limitations")
 st.markdown(
     """
     - **Support** measures how frequently an itemset occurs in the transactions.
