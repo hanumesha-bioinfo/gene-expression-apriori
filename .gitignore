@@ -58,3 +58,6 @@ data/processed/apriori_sample_groups.csv
 
 # Legacy workflow outputs generated directly under results/
 results/*.csv
+
+# Generated sensitivity-analysis outputs
+results/sensitivity_thresholds/
