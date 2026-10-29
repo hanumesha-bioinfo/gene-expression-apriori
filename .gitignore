@@ -1,3 +1,60 @@
-venv/
+# Python artifacts
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+
+# Virtual environments and local settings
+venv/
+venv_backup/
+.env
+.env.*
+
+# Test and tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Backups
+*.backup
+results_before_tuning/
+
+# Raw GEO downloads (download with project scripts)
+data/raw/
+
+# Large intermediate and generated analysis tables
+results/tables/association_rules_by_group.csv
+results/tables/frequent_itemsets_by_group.csv
+results/expression_matrix.csv
+results/all_samples_association_rules.csv
+results/tumor_association_rules.csv
+results/normal_association_rules.csv
+
+# Keep selected result summaries and figures tracked
+
+# Generated Python cache files
+**/__pycache__/
+
+# Large processed matrices and annotation intermediates
+data/processed/gene_expression_matrix.csv
+data/processed/gpl96_probe_annotation.csv
+data/processed/gpl96_clean_probe_gene_mapping.csv
+
+# Large filtered result table (regenerate from the pipeline)
+results/tables/association_rules_filtered.csv
+
+# Generated intermediate outputs
+results/expression_matrix.csv
+results/all_samples_association_rules.csv
+results/tumor_association_rules.csv
+results/normal_association_rules.csv
+
+# Generated sample-level metadata; regenerate from public GEO source
+data/processed/sample_metadata.csv
+data/processed/sample_characteristics.csv
+
+# Generated Apriori input matrices
+data/processed/apriori_binary_matrix.csv
+data/processed/apriori_sample_groups.csv
+
+# Legacy workflow outputs generated directly under results/
+results/*.csv

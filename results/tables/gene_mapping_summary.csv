@@ -1,0 +1,6 @@
+metric,value
+total_platform_probes,22283
+probes_without_gene_symbol,1058
+probes_with_multiple_symbols,1405
+unambiguous_mapped_probes,19820
+unique_mapped_gene_symbols,12547
